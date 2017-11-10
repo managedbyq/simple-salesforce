@@ -6,7 +6,7 @@ try:
 except ImportError:
     import unittest
 
-import httpretty
+import responses
 import requests
 try:
     # Python 2.6/2.7
@@ -20,10 +20,8 @@ except ImportError:
     from urllib.parse import urlparse
 
 from simple_salesforce import tests
-from simple_salesforce.login import (
-    SalesforceLogin, SalesforceAuthenticationFailed
-)
-
+from simple_salesforce.login import SalesforceLogin
+from simple_salesforce.exceptions import SalesforceAuthenticationFailed
 
 
 class TestSalesforceLogin(unittest.TestCase):
@@ -34,11 +32,11 @@ class TestSalesforceLogin(unittest.TestCase):
         self.mockrequest = request_patcher.start()
         self.addCleanup(request_patcher.stop)
 
-    @httpretty.activate
+    @responses.activate
     def test_custom_session_success(self):
         """Test custom session"""
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             re.compile(r'^https://.*$'),
             body=tests.LOGIN_RESPONSE_SUCCESS,
             status=http.OK
